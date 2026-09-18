@@ -1,113 +1,13 @@
-const form = document.querySelector('#chatForm');
-const input = document.querySelector('#messageInput');
-const messages = document.querySelector('#messages');
-const promptGrid = document.querySelector('#promptGrid');
-const welcomeBlock = document.querySelector('#welcomeBlock');
-const sendButton = document.querySelector('#sendButton');
-const newChatButton = document.querySelector('#newChatButton');
-const themeButton = document.querySelector('#themeButton');
-const recentList = document.querySelector('#recentList');
-
-const responses = [
-  { test: /hello|hi|hey|good morning|good evening/i, answer: "Hey there! I'm Orbit, your creative copilot. What are we exploring today?" },
-  { test: /who are you|what are you/i, answer: "I'm Orbit Assistant — a lightweight thinking partner for ideas, explanations, plans, and everything in between. I'm running right here in your browser, so no account or API key is needed." },
-  { test: /html|css|javascript|code|website|web/i, answer: "A great web project starts small: define the one action you want visitors to take, create a clear visual hierarchy, then add interaction with JavaScript. Want me to sketch a specific feature or layout?" },
-  { test: /project|idea|brainstorm|build/i, answer: "Try this: build a tiny tool that solves one recurring annoyance. A habit tracker with a mood slider, a reading queue, or a personal launchpad are all great places to start. The best idea is the one you can ship this weekend." },
-  { test: /learn|learning|skill|study/i, answer: "Use a simple loop: choose one concrete outcome, practice for 25 minutes a day, build a tiny project each week, and review what confused you. Consistency beats intensity." },
-  { test: /quantum|complex|explain|simple/i, answer: "Here's the short version: quantum computers use unusual properties of tiny particles to represent and manipulate information. They are not faster at everything — they are promising for a few special problems, like simulating molecules." },
-  { test: /thank|thanks/i, answer: "Anytime! I'm happy to keep exploring with you." }
+const form=document.querySelector('#chatForm');const input=document.querySelector('#messageInput');const messages=document.querySelector('#messages');const quickQuestions=document.querySelector('#quickQuestions');
+const answers=[
+ {test:/what is nexa|what do you do|product/i,answer:'Nexa is a calm, connected workspace for ambitious teams. It brings priorities, project context, and helpful AI into one place so your team can move from idea to impact with less friction.'},
+ {test:/help teams|team|collaborat|align|workflow/i,answer:'Nexa gives everyone a shared view of the work: clear priorities, lightweight workflows, and the context behind every decision. That means fewer status meetings and more meaningful progress.'},
+ {test:/price|cost|plan|free/i,answer:'Nexa offers flexible plans for growing teams. The best place to start is a quick conversation with our team — they can recommend the right setup for your goals.'},
+ {test:/random|something fun|interesting|fact/i,answer:'Random fact: honey never really spoils. Archaeologists have found edible honey in ancient Egyptian tombs — it can last for thousands of years when sealed properly.'},
+ {test:/hello|hi|hey/i,answer:'Hey! Welcome to Nexa. I can tell you about the product, teamwork, productivity, or answer a completely random question.'},
+ {test:/thank/i,answer:'You’re welcome! Keep the good questions coming.'}
 ];
-
-function getResponse(message) {
-  const match = responses.find((item) => item.test.test(message));
-  if (match) return match.answer;
-  return `That's an interesting direction. I'd start by breaking “${message.length > 70 ? `${message.slice(0, 67)}…` : message}” into one clear goal, one constraint, and one next action. What outcome would make this feel successful?`;
-}
-
-function addMessage(text, type) {
-  const message = document.createElement('div');
-  message.className = `message ${type}`;
-  if (type === 'assistant') {
-    message.innerHTML = `<div class="message-avatar">✦</div><div class="message-bubble"></div>`;
-    message.querySelector('.message-bubble').textContent = text;
-  } else {
-    message.innerHTML = `<div class="message-bubble"></div>`;
-    message.querySelector('.message-bubble').textContent = text;
-  }
-  messages.appendChild(message);
-  message.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function showTyping() {
-  const typing = document.createElement('div');
-  typing.className = 'message assistant';
-  typing.id = 'typingIndicator';
-  typing.innerHTML = '<div class="message-avatar">✦</div><div class="typing"><i></i><i></i><i></i></div>';
-  messages.appendChild(typing);
-  typing.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function submitMessage(text) {
-  const message = text.trim();
-  if (!message || sendButton.disabled) return;
-  welcomeBlock.hidden = true;
-  promptGrid.hidden = true;
-  addMessage(message, 'user');
-  input.value = '';
-  input.style.height = 'auto';
-  sendButton.disabled = true;
-  showTyping();
-  window.setTimeout(() => {
-    document.querySelector('#typingIndicator')?.remove();
-    addMessage(getResponse(message), 'assistant');
-    sendButton.disabled = false;
-    input.focus();
-  }, 650 + Math.random() * 500);
-}
-
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  submitMessage(input.value);
-});
-
-input.addEventListener('input', () => {
-  input.style.height = 'auto';
-  input.style.height = `${Math.min(input.scrollHeight, 130)}px`;
-});
-
-input.addEventListener('keydown', (event) => {
-  if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
-    event.preventDefault();
-    form.requestSubmit();
-  }
-  if (event.key === 'Enter' && !event.shiftKey && !event.metaKey && !event.ctrlKey) {
-    event.preventDefault();
-    form.requestSubmit();
-  }
-});
-
-promptGrid.addEventListener('click', (event) => {
-  const card = event.target.closest('[data-prompt]');
-  if (card) submitMessage(card.dataset.prompt);
-});
-
-newChatButton.addEventListener('click', () => {
-  messages.innerHTML = '';
-  welcomeBlock.hidden = false;
-  promptGrid.hidden = false;
-  input.value = '';
-  input.focus();
-});
-
-themeButton.addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  themeButton.textContent = document.body.classList.contains('light') ? '☾' : '☼';
-});
-
-recentList.addEventListener('click', (event) => {
-  const button = event.target.closest('.recent-chat');
-  if (!button) return;
-  document.querySelectorAll('.recent-chat').forEach((item) => item.classList.remove('selected'));
-  button.classList.add('selected');
-  submitMessage(button.textContent);
-});
+function answerFor(text){const found=answers.find(item=>item.test.test(text));return found?found.answer:`That’s a thoughtful question. I’m the Nexa product guide, so I can help with our workspace, team productivity, or a random question. Try asking “How does Nexa help teams?”`}
+function addMessage(text,type){const row=document.createElement('div');row.className=`chat-message ${type}`;if(type==='bot')row.innerHTML='<span class="bot-avatar">✦</span><p></p>';else row.innerHTML='<p></p>';row.querySelector('p').textContent=text;messages.appendChild(row);messages.scrollTop=messages.scrollHeight}
+function send(text){const value=text.trim();if(!value)return;addMessage(value,'user');input.value='';input.focus();const typing=document.createElement('div');typing.className='chat-message bot';typing.id='typing';typing.innerHTML='<span class="bot-avatar">✦</span><p>Thinking…</p>';messages.appendChild(typing);messages.scrollTop=messages.scrollHeight;setTimeout(()=>{typing.remove();addMessage(answerFor(value),'bot')},550)}
+form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});quickQuestions.addEventListener('click',e=>{const button=e.target.closest('button');if(button)send(button.dataset.prompt)});document.querySelector('.menu-button').addEventListener('click',()=>document.querySelector('.main-nav').classList.toggle('open'));
